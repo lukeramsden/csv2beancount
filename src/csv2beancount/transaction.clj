@@ -1,7 +1,7 @@
 (ns csv2beancount.transaction
   (:require [clojure.string :as str]))
 
-(defn- toggle-sign[x]
+(defn- toggle-sign [x]
   (let [amount (str/trim x)
         is-negative (str/starts-with? amount "-")]
     (if is-negative (subs amount 1) (str "-" amount))))
@@ -24,20 +24,21 @@
         rule (if (not-empty filtered-rules) (val (first filtered-rules)))]
     rule))
 
-(defn get-transaction[rules row]
+(defn get-transaction [rules row]
   (let [desc (get row (:desc-index rules))
         rule (associated-rule desc (:transactions rules))
         skip-transaction (get rule "skip" false)
-        {:keys [amount1 amount2]} 
+        {:keys [amount1 amount2]}
         (get-amounts (get row (:amount-in-index rules))
-                     (get row (:amount-out-index rules)) 
+                     (get row (:amount-out-index rules))
                      (:toggle-sign rules))]
     (if skip-transaction nil
-      {:date (get row (:date-index rules))
-       :desc desc
-       :currency (:currency rules)
-       :account1 (:account rules)
-       :account2 (get rule "account" (:default-account rules))
-       :comment (get rule "comment" "")
-       :amount1 amount1
-       :amount2 amount2 })))
+        {:date (get row (:date-index rules))
+         :desc desc
+         :currency (get row (:currency rules) (:currency rules))
+         :account1 (:account rules)
+         :account2 (get rule "account" (:default-account rules))
+         :comment (get rule "comment" "")
+         :note (if (get rule "skip_note") "" (get row (:note rules) ""))
+         :amount1 amount1
+         :amount2 amount2})))

@@ -19,20 +19,26 @@
           (:desc transaction) 
           (:comment transaction)))
 
-(defn- format-transaction-line [account amount currency]
-  (format "  %s %s %s\n" account amount currency))
+(defn- format-transaction-line [tag label data]
+  (format "  %s %s %s\n" tag label data))
 
 (defn- format-with-comment [t formatter]
   (str
     (header-comment-format t formatter) 
     (format-transaction-line (:account1 t) (:amount1 t) (:currency t))
-    (format-transaction-line (:account2 t) (:amount2 t) (:currency t))))
+    (format-transaction-line (:account2 t) (:amount2 t) (:currency t))
+    (if (str/blank? (:note t))
+      ""
+      (format "  note: \"%s\"\n" (:note t)))))
 
 (defn- format-without-comment [t formatter]
   (str
     (header-format t formatter) 
     (format-transaction-line (:account1 t) (:amount1 t) (:currency t))
-    (format-transaction-line (:account2 t) (:amount2 t) (:currency t))))
+    (format-transaction-line (:account2 t) (:amount2 t) (:currency t))
+    (if (str/blank? (:note t))
+      ""
+      (format "  note: \"%s\"\n" (:note t)))))
 
 (defn to-beancount [transaction date-format]
   (if (str/blank? (:comment transaction))
